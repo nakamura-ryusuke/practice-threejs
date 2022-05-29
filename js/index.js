@@ -77,6 +77,7 @@ function init() {
     // 初回実行
     tick();
     animate();
+    window.addEventListener("resize",onWindowResize);
 
     function tick() {
         controls.update();
@@ -102,5 +103,14 @@ function init() {
         requestAnimationFrame(animate);
     }
 
+    //ブラウザのリサイズに対応させる
+    function onWindowResize(){
+    renderer.setSize(window.innerWidth, innerHeight);
+
+    //カメラのアスペクト比を正す
+    camera.aspect = window.innerWidth / innerHeight;
+    camera.updateProjectionMatrix ();
+
+}
 }
 
