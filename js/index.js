@@ -4,14 +4,16 @@ import { GLTFLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders
 
 window.addEventListener('DOMContentLoaded', init);
 
-let width, height, camera ;
+let width, height, camera, pointLight, scene, renderer;
+let rot = 0;
 
 function init() {
     // レンダラーを作成
-    const renderer = new THREE.WebGLRenderer({
+        renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector('#canvas'),
         alpha: true,
     });
+
     // ウィンドウサイズ設定
     renderer.setPixelRatio(1);
     renderer.setSize(window.innerWidth,window.innerHeight);
@@ -19,7 +21,7 @@ function init() {
     console.log(width + ", " + height);
 
     // シーンを作成
-    const scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
     // カメラを作成
     camera = new THREE.PerspectiveCamera(
@@ -34,7 +36,7 @@ function init() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
 
-    // Load GLTF or GLB
+    // Load GLB
     const loader = new GLTFLoader();
     const url = 'mimi.glb';
 
@@ -58,7 +60,6 @@ function init() {
     renderer.gammaOutput = true;
     renderer.gammaFactor = 2.2;
 
-
     // 平行光源
     const light = new THREE.DirectionalLight(0xFFFFFF);
     light.intensity = 2; // 光の強さを倍に
@@ -66,7 +67,7 @@ function init() {
     scene.add(light);
 
     //ポイント光源を追加
-    const pointLight = new THREE.PointLight(0xffffff,2);
+    pointLight = new THREE.PointLight(0xffffff,2);
     pointLight.position.set(5000,5000,5000)
 
      //ポイントライトヘルパー追加
@@ -75,42 +76,49 @@ function init() {
      scene.add(pointLight);
     
     // 初回実行
-    tick();
+    //tick();
     animate();
     window.addEventListener("resize",onWindowResize);
 
-    function tick() {
-        controls.update();
+    // function tick() {
+    //    controls.update();
+    //
+    //    if (model != null) {
+    //        console.log(model);
+    //    }
+    //    renderer.render(scene, camera);
+    //    requestAnimationFrame(tick);
+    // }
 
-        if (model != null) {
-            console.log(model);
-        }
-        renderer.render(scene, camera);
-        requestAnimationFrame(tick);
-    }
+}
 
-    function animate(){
-        //ポイント光源を球の周りを巡回させよう
-        pointLight.position.set(
-            2000 * Math.sin(Date.now() / 500),
-            2000 * Math.sin(Date.now() / 1000),
-            2000 * Math.cos(Date.now() / 500)
-        );
-        scene.add(pointLight);
-        //レンダリングする
-        renderer.render(scene, camera);
-        
-        requestAnimationFrame(animate);
-    }
-
-    //ブラウザのリサイズに対応させる
-    function onWindowResize(){
+//ブラウザのリサイズに対応させる
+function onWindowResize(){
     renderer.setSize(window.innerWidth, innerHeight);
-
+    
     //カメラのアスペクト比を正す
     camera.aspect = window.innerWidth / innerHeight;
     camera.updateProjectionMatrix ();
+    
+    }   
 
+    
+function animate(){
+    //ポイント光源を球の周りを巡回させよう
+    pointLight.position.set(
+        2000 * Math.sin(Date.now() / 500),
+        2000 * Math.sin(Date.now() / 1000),
+        2000 * Math.cos(Date.now() / 500)
+    );
+    scene.add(pointLight);
+    //レンダリングする
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+    
+    //カメラを回す
+    rot += 0.5;
+    let radian = rot *(Math.PI / 180);
+    camera.position.x = Math.sin(radian) * 10000;
+    camera.position.z = Math.cos(radian) * 10000;
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 }
-}
-
